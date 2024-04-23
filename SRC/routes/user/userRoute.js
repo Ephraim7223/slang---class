@@ -1,11 +1,11 @@
 import express from "express";
-const router = express.Router()
 import { deleteAllUsers, deleteSingleUser, getAllUsers, getSingleUser, updateUser } from "../../controllers/userController.js";
+const router = express.Router()
 
-router.get("/", getSingleUser)
-router.get("/:id", getAllUsers)
-router.delete("/:id", deleteSingleUser)
-router.delete("/delete", deleteAllUsers)
-router.patch('/update-user', updateUser)
+router.get("/", getAllUsers)
+router.get("/:id", getSingleUser)
+router.delete("/delete-all", deleteAllUsers)
+router.patch('/update-user/:id', updateUser)
+router.delete("/delete-single/:id", deleteSingleUser)
 
 export default router
