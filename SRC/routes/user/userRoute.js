@@ -5,7 +5,7 @@ const router = express.Router()
 router.get("/", getAllUsers)
 router.get("/:id", getSingleUser)
 router.delete("/delete-all", deleteAllUsers)
-router.patch('/update-user/:id', updateUser)
-router.delete("/delete-single/:id", deleteSingleUser)
+router.patch('/update/:id', updateUser)
+router.delete("/delete/:id", deleteSingleUser)
 
 export default router

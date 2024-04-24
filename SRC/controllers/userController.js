@@ -1,4 +1,5 @@
 import User from "../models/user.model.js"
+import crypto from 'crypto';
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -58,17 +59,37 @@ export const deleteAllUsers = async (req, res) => {
         }
 }
 
+
 export const updateUser = async (req, res) => {
-    try {
+  try {
     const userId = req.params.id;
-    const updatedUser = await User.findByIdAndUpdate(userId,req.body, { new: true });
- 
-    if (!updatedUser) {
-       return res.status(404).json({ message: `User with id: ${userId} not found` });
-     }
-     res.status(200).json({message:'User updated successfully',updatedUser});
-   } catch (error) {
-     console.error('Error while updating User:', error);
-     res.status(400).json({ message: error.message });
-   }
- }
+    const { password, ...rest } = req.body;
+
+    if (password) {
+      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { ...rest, password: hashedPassword },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: `User with id: ${userId} not found` });
+      }
+
+      return res.status(200).json({ message: 'User updated successfully', updatedUser });
+    } else {
+      const updatedUser = await User.findByIdAndUpdate(userId, rest, { new: true });
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: `User with id: ${userId} not found` });
+      }
+
+      return res.status(200).json({ message: 'User updated successfully', updatedUser });
+    }
+  } catch (error) {
+    console.error('Error while updating User:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
