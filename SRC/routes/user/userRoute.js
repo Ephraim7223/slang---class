@@ -1,5 +1,6 @@
 import express from "express";
-import { deleteAllUsers, deleteSingleUser, getAllUsers, getSingleUser, updateUser } from "../../controllers/userController.js";
+import { deleteAllUsers, deleteSingleUser, getAllUsers, getSingleUser, updateUser } from "../../controllers/user.Controller.js";
+// import protectRoute from "../../middlewares/protectRoute.js";
 const router = express.Router()
 
 router.get("/", getAllUsers)

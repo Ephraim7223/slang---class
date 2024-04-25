@@ -1,5 +1,5 @@
 import User from "../models/user.model.js"
-import crypto from 'crypto';
+import cryptoHash from 'crypto';
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -66,7 +66,7 @@ export const updateUser = async (req, res) => {
     const { password, ...rest } = req.body;
 
     if (password) {
-      const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+      const hashedPassword = cryptoHash.createHash('sha256').update(password).digest('hex');
 
       const updatedUser = await User.findByIdAndUpdate(
         userId,

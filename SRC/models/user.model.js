@@ -14,10 +14,10 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  confirmPassword: {
-    type: String,
-    required: true
-  },
+  // confirmPassword: {
+  //   type: String,
+  //   required: true
+  // },
   email: {
     type: String,
     required: true,
@@ -58,7 +58,7 @@ const userSchema = mongoose.Schema({
   }
 },
 {
-  timeStamps: true
+  timestamps: true
 }
 );
 

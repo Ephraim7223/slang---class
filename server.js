@@ -1,4 +1,4 @@
-// Calling all the dependencies
+// Importing all the dependencies
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'

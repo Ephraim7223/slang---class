@@ -2,6 +2,7 @@ import cryptoHash from 'crypto';
 import User from '../models/user.model.js';
 import { signUpValidator, signInValidator } from '../validators/auth.validator.js';
 import { formatZodError } from '../utils/errorMessage.js';
+import generateTokenAndSetCookie from '../utils/generateTokenAndSetCookie.js';
 
 function hashValue(value) {
     const hash = cryptoHash.createHash('sha256');
@@ -38,13 +39,12 @@ export const signUp = async (req, res) => {
             if (password !== confirmPassword) {
                 return res.status(403).json({ message: 'Password and confirmPassword do not match' });
              }   
-             const encryption = hashValue(password, confirmPassword)
+             const encryption = hashValue(password)
              
             const newUser = new User({
                 name,
                 userName,
                 password: encryption,
-                confirmPassword : encryption,
                 email,
                 phoneNumber,
                 bio,
@@ -61,7 +61,26 @@ export const signUp = async (req, res) => {
 }
 
 export const signIn = async (req, res, next) => {
+    const loginResults = signInValidator.safeParse(req.body)
+    if (!loginResults) {
+        return res.status(400).json(formatZodError(loginResults.error.issues))
+    } try {
+        const {email, password} = req.body
+        const user = await User.findOne({email})
+        if (!user) {
+            return res.status(400).json({message:'User with email not found'})
+        }
+        const comparePass = comparePasswords(password,user.password)
+        if(!comparePass) {
+           return res.status(400).json({message:'Password is incorrect'})
+        }
+        const accessToken = generateTokenAndSetCookie(user._id, res)
 
+        res.status(200).json({message:'User Login successful', accessToken})
+    } catch (error) {
+        res.status(500).json({message: error.message})
+        console.log('INTERNAL SERVER ERROR',error.message)
+    }
 }
 
 export const logout = async (req, res, next) => {
