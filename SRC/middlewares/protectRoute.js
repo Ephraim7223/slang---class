@@ -1,25 +1,49 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv"
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 const protectRoute = async (req, res, next) => {
-	try {
-		const token = req.cookies.jwt;
+  try {
+    if (!jwt) {
+      throw new Error("jsonwebtoken module is not defined.");
+    }
 
-		if (!token) return res.status(401).json({ message: "Unauthorized" });
+    const authHeader = req.headers.authorization;
 
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-		const user = await User.findById(decoded.userId).select("-password");
+    const token = authHeader.split(" ")[1];
 
-		req.user = user;
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-		next();
-	} catch (err) {
-		res.status(500).json({ message: err.message });
-		console.log("Error in signupUser: ", err.message);
-	}
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET environment variable is not defined.");
+    }
+
+    console.log("Token received:", token);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    console.log("Decoded token:", decoded);
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    req.user = user;
+
+    next();
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    console.error("Error in protectRoute:", err);
+  }
 };
 
 export default protectRoute;
