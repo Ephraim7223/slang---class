@@ -49,3 +49,56 @@ export const createPost = async (req, res) => {
     console.error('Internal server error:', error);
   }
 };
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const post = await Post.find()
+    if (!post) {
+      console.log('NO posts in database')
+      return res.status(404).json({message: 'NO posts in database'})
+    }
+      res.status(200).json({message: 'Posts found successfully', post})
+  } catch (error) {
+    res.status(500)
+    console.log(error);
+    throw new error
+  }
+}
+
+export const getSinglePost = async (req, res) => {
+  try {
+    const singlePost = await Post.findById(req.params.id)
+    if (!singlePost) {
+      console.log('NO post in database')
+      res.status(404).json({message: 'NO post in database'})
+      // throw new error 
+    } else {
+      res.status(200).json({message: 'Posts found successfully', singlePost})
+    }
+  } catch (error) {
+    res.status(500)
+    console.log(error);
+    throw new error
+  }
+}
+
+export const deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+    if (!post) {
+     return res.status(404).json({message: 'NO post with such id existing'})
+    }
+    if (post.postedBy.toString() !== req.user._id.toString()) {
+     return res.status(401).json({message: 'You cannot delete a post you did not create:: you fool!!! 🐸🐸🐸🐸🐸'})
+    }
+    if (post.img) {
+      const imgId = post.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId)
+    }
+    await Post.findByIdAndDelete(post)
+    res.status(200).json({message: 'Post deleted successfully'})
+  } catch (error) {
+    res.status(500).json({message: "internal server error"})
+    console.log(error);
+  }
+}
