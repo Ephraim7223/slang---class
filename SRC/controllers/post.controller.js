@@ -76,7 +76,6 @@ export const getSinglePost = async (req, res) => {
   }
 };
 
-// Delete a post
 export const deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);

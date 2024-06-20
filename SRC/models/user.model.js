@@ -43,7 +43,7 @@ const userSchema = mongoose.Schema({
   bio: {
     type: String,
   },
-  friends: {
+  following: {
     type:[String],
     default: []
   },
