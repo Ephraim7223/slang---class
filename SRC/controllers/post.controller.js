@@ -29,15 +29,14 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ error: `Text should not exceed ${maxlength} characters 🐸🐸🐸🐸` });
     }
 
-    let imgUrl = img;
     if (img) {
       const uploadedImg = await cloudinary.uploader.upload(img);
-      imgUrl = uploadedImg.secure_url;
+      img = uploadedImg.secure_url;
     }
 
     const newPost = new Post({
       postedBy,
-      img: imgUrl,
+      img,
       text
     });
 
@@ -123,28 +122,29 @@ export const likeUnlikePost = async (req, res) => {
 };
 
 export const replyToPost = async (req, res) => {
-  try {
-    const { text } = req.body;
-    const postId = req.params.id;
-    const userId = req.user._id;
-    const { profilePic: userProfilePic, username } = req.user;
+	try {
+		const { text } = req.body;
+		const postId = req.params.id;
+		const userId = req.user._id;
+		const userProfilePic = req.user.profilePic;
+		const username = req.user.username;
 
-    if (!text) {
-      return res.status(400).json({ error: "Text field is required" });
-    }
+		if (!text) {
+			return res.status(400).json({ error: "Text field is required" });
+		}
 
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
+		const post = await Post.findById(postId);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
 
-    const reply = { userId, text, userProfilePic, username };
-    post.replies.push(reply);
-    await post.save();
+		const reply = { userId, text, userProfilePic, username };
 
-    res.status(200).json(reply);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-    console.error(error);
-  }
+		post.replies.push(reply);
+		await post.save();
+
+		res.status(200).json(reply);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 };
