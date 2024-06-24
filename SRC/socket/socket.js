@@ -22,13 +22,13 @@ const socketMap = {}
 io.on = ('connection',(socket) => {
     console.log('connected successfully', socket.id);
     const userId = socket.handshake.query.userId
-    if (userId !== 'undefined') socketMap[userId]
+    if (userId != 'undefined') socketMap[userId]
     io.emit('check online users',Object.keys(socketMap)) 
     socket.on('markMessageAsRead', async({conversationId, userId}) => {
         try {
             await Message.updateMany({conversationId: conversationId, seen:false} , {$set :{ seen:true}})
-            await Conversation.updateOne({_id:conversationId}, {$set:{seen:true}})
-            io.to(socketMap[userId]).emit('messagesSent',{conversationId, userId})
+            await Conversation.updateOne({_id:conversationId}, {$set:{'lastMessage.seen':true}})
+            io.to(socketMap[userId]).emit('messagesSent',{conversationId})
         } catch (error) {
             console.log(error);
         }

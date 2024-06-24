@@ -5,7 +5,7 @@ import { getRecipientSocketId, io } from "../socket/socket.js";
 export const sendMessage = async (req, res) => {
     try {
         const {recepientId} = req.params
-        const message = req.body
+        const {message} = req.body
         const senderId = req.user._id
 
         let conversation = await Conversation.findOne({
@@ -14,7 +14,7 @@ export const sendMessage = async (req, res) => {
 
         if (!conversation) {
             conversation = new Conversation({
-                participants:{senderId, recepientId},
+                participants:[senderId, recepientId],
                 lastMessage:{
                     text: message,
                     sender: senderId
