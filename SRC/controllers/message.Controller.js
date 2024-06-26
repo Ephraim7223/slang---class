@@ -50,7 +50,7 @@ export const sendMessage = async (req, res) => {
         console.log(error);
     }
 }
-// export const getMessage = () => {}
+
 export const getConversations = async (req, res) => {
     const userId = req.user._id;
     try {
@@ -69,5 +69,24 @@ export const getConversations = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
+
+export const getMessage = async (req, res) => {
+    const { conversationId } = req.params;
+    const userId = req.user._id;
+    try {
+        const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
+
+        const recipientId = messages.length ? messages[0].conversationId.participants.find(id => id.toString() !== userId.toString()) : null;
+
+        if (recipientId && recipientId.toString() === userId.toString()) {
+            await Message.updateMany({ conversationId, sender: { $ne: userId }, isSeen: false }, { isSeen: true });
+        }
+
+        res.status(200).json(messages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const deleteMessage = () => {}
 export const updateMessage = () => {}
