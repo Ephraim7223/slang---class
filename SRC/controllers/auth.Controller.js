@@ -3,6 +3,9 @@ import User from '../models/user.model.js';
 import { signUpValidator, signInValidator } from '../validators/auth.validator.js';
 import { formatZodError } from '../utils/errorMessage.js';
 import generateTokenAndSetCookie from '../utils/generateTokenAndSetCookie.js';
+import { generateRandomNumber } from '../utils/randomNumber.js';
+import { successfullRegistration } from '../templates/successfullReg.js';
+import { otpGeneration } from '../templates/otp.js';
 
 function hashValue(value) {
     const hash = cryptoHash.createHash('sha256');
@@ -40,16 +43,19 @@ export const signUp = async (req, res) => {
                 return res.status(403).json({ message: 'Password and confirmPassword do not match' });
              }   
              const encryption = hashValue(password)
+             const userId = generateRandomNumber(7)
              
             const newUser = new User({
                 name,
                 userName,
                 password: encryption,
                 email,
+                loginID: userId,
                 phoneNumber,
                 bio,
                 gender
             })
+            await successfullRegistration(newUser.email, newUser.userName, newUser.loginID)
             await newUser.save()
             res.status(200).json({message: 'User registered succesfully',newUser})
             console.log('User registered succesfully',newUser);
@@ -65,10 +71,10 @@ export const signIn = async (req, res, next) => {
     if (!loginResults) {
         return res.status(400).json(formatZodError(loginResults.error.issues))
     } try {
-        const {email, password} = req.body
-        const user = await User.findOne({email})
+        const {loginID, password} = req.body
+        const user = await User.findOne({loginID})
         if (!user) {
-            return res.status(400).json({message:'User with email not found'})
+            return res.status(400).json({message:'User with loginID not found'})
         }
         const comparePass = comparePasswords(password,user.password)
         if(!comparePass) {
@@ -86,4 +92,21 @@ export const signIn = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
 
+}
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const {email} = req.body
+        const user = await User.findOne({email})
+        if (!user) {
+            res.status(404).json({message: 'Email not found in db'})
+        }
+        const randomOtp = generateRandomNumber(7)
+        user.otp = randomOtp
+        await user.save()
+        await otpGeneration(user.email, user.otp)
+        res.status(200).json({message: 'Otp sent successfully'})
+    } catch (error) {
+        res.status(500).json(error)
+    }
 }

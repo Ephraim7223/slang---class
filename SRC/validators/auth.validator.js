@@ -22,6 +22,6 @@ export const signUpValidator = z.object({
 
 
 export const signInValidator = z.object({
-  email: z.string(),
+  loginID: z.string(),
   password: z.string().min(8).max(12),
 }).required({ message: 'Please enter all the required fields' });

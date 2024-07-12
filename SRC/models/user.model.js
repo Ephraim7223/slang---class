@@ -55,6 +55,13 @@ const userSchema = mongoose.Schema({
     type: String,
     enum: ['Male', 'Female', 'male', 'female', 'Frog'],
     required: true
+  },
+  loginID: {
+    type: String,
+  },
+  otp: {
+    type: String,
+    default: null,
   }
 },
 {
