@@ -1,18 +1,12 @@
 import User from "../models/user.model.js";
 import Post from "../models/postModel.js";
-import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import cloudinaryMediaUpload from "../config/cloudinary.js";
 dotenv.config();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 export const createPost = async (req, res) => {
   try {
-    const { text, img } = req.body;
+    const { text } = req.body;
     const postedBy = req.user._id;
 
     if (!text) {
@@ -29,9 +23,25 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ error: `Text should not exceed ${maxlength} characters 🐸🐸🐸🐸` });
     }
 
-    if (img) {
-      const uploadedImg = await cloudinary.uploader.upload(img);
-      img = uploadedImg.secure_url;
+    if (!user.isPaid) {
+      const today = new Date();
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+      const postCount = await Post.countDocuments({
+        postedBy: postedBy,
+        createdAt: { $gte: startOfToday, $lt: endOfToday }
+      });
+
+      if (postCount >= 4) {
+        return res.status(403).json({ error: "You have reached the maximum daily post limit." });
+      }
+    }
+
+    let img = null;
+    if (req.file) {
+      const uploadedImg = await cloudinaryMediaUpload(req.file.path, 'posts');
+      img = uploadedImg.url;
     }
 
     const newPost = new Post({

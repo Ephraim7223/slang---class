@@ -1,6 +1,6 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -14,10 +14,6 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  // confirmPassword: {
-  //   type: String,
-  //   required: true
-  // },
   email: {
     type: String,
     required: true,
@@ -44,11 +40,11 @@ const userSchema = mongoose.Schema({
     type: String,
   },
   following: {
-    type:[String],
+    type: [String],
     default: []
   },
   followers: {
-    type:[String],
+    type: [String],
     default: []
   },
   gender: {
@@ -62,12 +58,22 @@ const userSchema = mongoose.Schema({
   otp: {
     type: String,
     default: null,
+  },
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
+  blueTickExpiresAt: {
+    type: Date,
+    default: null
+  },
+  role: {
+    type: String,
+    default: 'user'
   }
-},
-{
+}, {
   timestamps: true
-}
-);
+});
 
-const User = mongoose.model('User',userSchema)
-export default User
+const User = mongoose.model('User', userSchema);
+export default User;

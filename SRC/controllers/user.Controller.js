@@ -1,5 +1,22 @@
 import User from "../models/user.model.js"
 import cryptoHash from 'crypto';
+import { frozenAccountTemplate } from "../templates/frozenAccountTemplate.js";
+import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+function hashValue(value) {
+    const hash = cryptoHash.createHash('sha256');
+    hash.update(value);
+    return hash.digest('hex');
+}
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -94,18 +111,23 @@ export const updateUser = async (req, res) => {
   }
 };
 
-export const freezeAccount = async(req, res) => {
+export const freezeAccount = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id)
+        const userId = req.params.id;
+        const user = await User.findById(userId);
         if (!user) {
-            res.status(401).json({message: "You are unauthorized to freeze this account"})
+            return res.status(404).json({ message: "User not found" });
         }
-        user.isFrozen = true
-        await user.save()
+        user.isFrozen = true;
+        await user.save();
+        await frozenAccountTemplate(user.email, user.userName);
+        res.status(200).json({ message: 'Account frozen successfully', user });
     } catch (error) {
-        res.status(500).json({message:error})
+        res.status(500).json({ message: error.message });
     }
-}
+};
+
+  
 
 export const getSuggestedUsers = async (req, res) => {
 	try {
@@ -163,3 +185,95 @@ export const followAndUnfollow = async (req, res) => {
         res.status(500).json(error.message)
     }
 }
+
+export const updateProfilePic = async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const oldProfilePicId = user.profilePic && user.profilePic.split('/').pop().split('.')[0];
+      
+      if (req.file) {
+        const uploadedImg = await cloudinary.uploader.upload(req.file.path);
+        const newProfilePicUrl = uploadedImg.secure_url;
+  
+        if (oldProfilePicId) {
+          await cloudinary.uploader.destroy(oldProfilePicId);
+        }
+  
+        user.profilePic = newProfilePicUrl;
+        await user.save();
+  
+        res.status(200).json({ message: 'Profile picture updated successfully', user });
+      } else {
+        res.status(400).json({ message: 'No file uploaded' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+      console.error('INTERNAL SERVER ERROR', error.message);
+    }
+  };
+  
+  export const updateCoverPhoto = async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const oldCoverPhotoId = user.coverPhoto && user.coverPhoto.split('/').pop().split('.')[0];
+      
+      if (req.file) {
+        const uploadedImg = await cloudinary.uploader.upload(req.file.path);
+        const newCoverPhotoUrl = uploadedImg.secure_url;
+  
+        if (oldCoverPhotoId) {
+          await cloudinary.uploader.destroy(oldCoverPhotoId);
+        }
+  
+        user.coverPhoto = newCoverPhotoUrl;
+        await user.save();
+  
+        res.status(200).json({ message: 'Cover photo updated successfully', user });
+      } else {
+        res.status(400).json({ message: 'No file uploaded' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+      console.error('INTERNAL SERVER ERROR', error.message);
+    }
+  };
+
+  export const updatePassword = async (req, res) => {
+    const userId = req.user._id;
+    const { currentPassword, newPassword } = req.body;
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const isMatch = await comparePasswords(currentPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+  
+      const encryptedPassword = hashValue(newPassword);
+  
+      user.password = encryptedPassword;
+      await user.save();
+  
+      res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+      console.error('INTERNAL SERVER ERROR', error.message);
+    }
+  };
