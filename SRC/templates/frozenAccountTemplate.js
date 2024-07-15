@@ -14,7 +14,7 @@ export const frozenAccountTemplate = (email, userName) => {
     const mail = {
         to: email,
         subject: 'Account Frozen',
-        from: process.env.GMAIL_NAME,
+        from: 'basseyephraim55@gmail.com',
         html: template,
     };
 

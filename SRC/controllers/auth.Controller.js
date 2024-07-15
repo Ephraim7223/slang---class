@@ -8,6 +8,7 @@ import { successfullRegistration } from '../templates/successfullReg.js';
 import { otpGeneration } from '../templates/otp.js';
 import Admin from '../models/admin.model.js';
 import cloudinaryMediaUpload from '../config/cloudinary.js';
+import { sendSuccessEmail } from '../templates/passwordResetSuccessMessage.js';
 
 function hashValue(value) {
     const hash = cryptoHash.createHash('sha256');
@@ -173,7 +174,7 @@ export const resetPassword = async (req, res) => {
         user.password = newPassword;
         user.otp = undefined;
         await user.save();
-
+        await sendSuccessEmail(user.email, user.name)
         return res.status(200).json({ message: 'Password reset successfully' });
     } catch (error) {
         console.error('Error in resetPassword:', error);

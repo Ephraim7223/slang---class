@@ -14,7 +14,7 @@ export const paymentSuccessfulTemplate = (email, userName) => {
     const mail = {
         to: email,
         subject: 'Payment Successful',
-        from: process.env.GMAIL_NAME,
+        from: 'basseyephraim55@gmail.com',
         html: template,
     };
 

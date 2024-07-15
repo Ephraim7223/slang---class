@@ -14,7 +14,7 @@ export const blueTickExpiryTemplate = (email, userName) => {
     const mail = {
         to: email,
         subject: 'Blue Tick Expiry',
-        from: process.env.GMAIL_NAME,
+        from: 'basseyephraim55@gmail.com',
         html: template,
     };
 
