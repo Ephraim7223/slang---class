@@ -159,3 +159,24 @@ export const forgotPassword = async (req, res) => {
         res.status(500).json(error)
     }
 }
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { otp, newPassword } = req.body;
+
+        const user = await User.findOne({ otp });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Invalid OTP' });
+        }
+
+        user.password = newPassword;
+        user.otp = undefined;
+        await user.save();
+
+        return res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
