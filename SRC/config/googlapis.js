@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
 import { google } from 'googleapis';
 import { createTransport } from 'nodemailer';
-const OAuth2 = google.auth.OAuth2
+const OAuth2 = google.auth.OAuth2;
 
-const {GMAIL_NAME,REDIRECT_URI,CLIENT_ID,CLIENT_SECRET,REFRESH_TOKEN, accessToken} = process.env
+const { GMAIL_NAME, REDIRECT_URI, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, accessToken } = process.env;
 
 console.log({
     GMAIL_NAME,
@@ -15,10 +15,10 @@ console.log({
     REDIRECT_URI
 });
 
-const oauth2Client = new OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
-oauth2Client.setCredentials({refresh_token: REFRESH_TOKEN})
+const oauth2Client = new OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-const smtpTransport = createTransport ({
+const smtpTransport = createTransport({
     service: 'gmail',
     auth: {
         type: 'OAuth2',
@@ -31,19 +31,21 @@ const smtpTransport = createTransport ({
     tls: {
         rejectUnauthorized: false
     }
-})
+});
 
-export const mailTransport = async (
-    from,to,subject,html,attachments 
-) => {
-    console.log(`sending mail to user: [${to}]`)
-    const mailOptions = {from, to, subject, html, attachments};
+export const mailTransport = async (to, subject, html, attachments) => {
+    const from = GMAIL_NAME;
+    console.log(`Sending mail to user: [${to}]`);
+
+    const mailOptions = { from, to, subject, html, attachments };
+
     return new Promise((resolve, reject) => {
-        smtpTransport.sendMail(mailOptions,(err,info) => {
+        smtpTransport.sendMail(mailOptions, (err, info) => {
             if (err) {
                 return reject(err);
             }
-             resolve(info)
-        })
-    })
-}
+            console.log(`Mail sent to [${to}] with response: ${info.response}`);
+            resolve(info);
+        });
+    });
+};
