@@ -7,6 +7,6 @@ router.post('/signup', upload.fields([{ name: 'profilePic', maxCount: 1 }, { nam
 router.post("/login", signIn)
 router.post("/send-otp", forgotPassword)
 router.post('/logout', logout);
-router.post('signin', adminSignIn)
+router.post('/signin', adminSignIn)
 
 export default router;
