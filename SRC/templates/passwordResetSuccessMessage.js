@@ -9,7 +9,7 @@ export const sendSuccessEmail = async (email, name) => {
                 greeting: `Hello ${name}`,
                 intro: `Your password has been successfully reset.`,
                 outro: [
-                    `If you did not perform this action, please contact us immediately.`,
+                    `If you did not perform this action, please contact us immediately. 🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸`,
                 ]
             }
         };

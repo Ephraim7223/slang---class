@@ -11,7 +11,7 @@ export const successfullRegistration = async (email, userName, loginID) => {
             greeting: `Hello ${userName}`,
             intro: `Welcome to SLANG your loginID is ${loginID}`,
             outro: [
-                `If you did not request a loginId , please ignore or contact us`,
+                `If you did not request a loginId , please ignore or contact us 🐸🐸🐸🐸🐸🐸🐸🐸`,
             ]
         }
     }

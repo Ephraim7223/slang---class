@@ -11,7 +11,7 @@ export const otpGeneration = async (email, otp ) => {
             greeting: `Hello User`,
             intro: `Welcome to SLANG your otp is ${otp}`,
             outro: [
-                `If you did not request an otp , please ignore or contact us`,
+                `If you did not request an otp , please ignore or contact us 🐸🐸🐸🐸🐸🐸🐸🐸`,
             ]
         }
     }

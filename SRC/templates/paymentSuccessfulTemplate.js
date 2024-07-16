@@ -25,7 +25,7 @@ export const paymentSuccessfulTemplate = (email, userName, tickType, expiryDate)
                     },
                 },
             },
-            outro: 'Enjoy your verified status on our platform.',
+            outro: 'Enjoy your verified status on our platform. 🐸🐸🐸🐸🐸🐸🐸',
         },
     };
     const template = mailGenerator.generate(html);

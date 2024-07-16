@@ -7,7 +7,7 @@ export const unfrozenAccountTemplate = async (email, userName) => {
             signature: false,
             greeting: `Hello ${userName}`,
             intro: 'Your account has been unfrozen and you can now access all our services.',
-            outro: 'If you have any questions, please contact our support team.'
+            outro: 'If you have any questions, please contact our support team. 🐸🐸🐸🐸🐸🐸🐸'
         }
     };
     const template = mailGenerator.generate(html);
