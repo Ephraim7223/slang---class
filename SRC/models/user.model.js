@@ -67,6 +67,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  yellowTickExpiresAt: {
+    type: Date,
+    default: null
+  },
+  greenTickExpiresAt: {
+    type: Date,
+    default: null
+  },
   role: {
     type: String,
     default: 'user'

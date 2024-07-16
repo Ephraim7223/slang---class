@@ -3,6 +3,8 @@ import cryptoHash from 'crypto';
 import { frozenAccountTemplate } from "../templates/frozenAccountTemplate.js";
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import { unfrozenAccountTemplate } from "../templates/unfreezeAccountTemplate.js";
+import Report from "../models/report.model.js";
 
 dotenv.config();
 
@@ -127,6 +129,21 @@ export const freezeAccount = async (req, res) => {
     }
 };
 
+export const unfreezeAccount = async (req, res) => {
+  try {
+      const userId = req.params.id;
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+      user.isFrozen = false;
+      await user.save();
+      await unfrozenAccountTemplate(user.email, user.userName);
+      res.status(200).json({ message: 'Account unfrozen successfully', user });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
   
 
 export const getSuggestedUsers = async (req, res) => {
@@ -277,3 +294,26 @@ export const updateProfilePic = async (req, res) => {
       console.error('INTERNAL SERVER ERROR', error.message);
     }
   };
+
+  export const reportUser = async (req, res) => {
+    try {
+        const reporterId = req.user._id;
+        const { reportedUserId, reason } = req.body;
+
+        const reportedUser = await User.findById(reportedUserId);
+        if (!reportedUser) {
+            return res.status(404).json({ message: "Reported user not found" });
+        }
+
+        const newReport = new Report({
+            reporter: reporterId,
+            reportedUser: reportedUserId,
+            reason
+        });
+
+        await newReport.save();
+        res.status(200).json({ message: 'User reported successfully', report: newReport });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

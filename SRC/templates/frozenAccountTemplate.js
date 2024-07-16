@@ -6,9 +6,9 @@ export const frozenAccountTemplate = (email, userName) => {
         body: {
             signature: false,
             greeting: `Hello ${userName}`,
-            intro: 'Your account has been frozen by the admin.',
-            outro: 'Please contact support if you think this is a mistake.',
-        },
+            intro: 'Your account has been frozen due to a violation of our terms of service.',
+            outro: 'If you believe this is a mistake, please contact our support team.'
+        }
     };
     const template = mailGenerator.generate(html);
     const mail = {
