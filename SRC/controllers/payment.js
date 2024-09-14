@@ -80,6 +80,7 @@ export const verifyPayment = async (req, res) => {
       res.status(200).json({ message: 'Payment successful', user });
 
       cron.schedule('0 0 0 * * *', async () => {
+
         const currentUser = await User.findById(user._id);
         if (currentUser.blueTickExpiresAt <= new Date()) {
           currentUser.isPaid = false;
